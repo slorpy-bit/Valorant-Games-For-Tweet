@@ -1,25 +1,8 @@
 from requests_oauthlib import OAuth1Session
 from time import sleep
 from datetime import datetime
-
-
-def tweet_4teams(team1, team2, team3, team4, vct_server, hour1, hour2):
-    draw_tweet = f"""\
-Partidos de hoy de la #{vct_server}:
-
-Horas CDMX:
-- {hour1} | {team1} vs {team2}
-- {hour2} | {team3} vs {team4}\
-"""
-    return draw_tweet
-
-
-hashtags = {'americas': '#VCTAmericas', 'emea': '#VCTEmea', 'pacifico': '#VCTPacific', 'china': '#VCTChina'}
-
-games = [
-    {'title': {'text': tweet_4teams('KRU', 'G2', 'TH', 'LEV', hashtags['americas'], '2pm', '3pm')},
-     'time': datetime(2024, 7, 13, 2, 38)}
-]
+import get_games_from_file
+import get_online_games
 
 consumer_key = "tn48s2ybVVXcf3k8ISUzzVB4y"
 consumer_secret = "fRvSZatoVdqXKyGskdhdez0FhtDZCgMzjUw07iiABssqlFfk1r"
@@ -68,20 +51,27 @@ oauth = OAuth1Session(
 )
 
 # Making the request
-while len(games) > 0:
-    for game in games:
-        if game['time'] <= datetime.now():
-            response = oauth.post(
-                "https://api.twitter.com/2/tweets",
-                json=game['title'],
-            )
-            games.remove(game)
-
-            if response.status_code != 201:
-                raise Exception("Request returned an error: {} {}".format(response.status_code, response.text))
-            else:
-                print("Response code: ", response.status_code)
-                print("Tweet hecho con exito")
-
-            break
-    sleep(5)
+while True:
+    games_today = ["Partidos de hoy"]
+    now = datetime.now()
+    if now.hour == 10:
+        get_online_games.main()
+        games = get_games_from_file.main()
+        for game in games:
+            if game['date'] <= now.replace(day=now.day):
+                games_today.append(f"{game['server']} | {game['left']} vs {game['right']}")
+        print('\n' + "\n".join(games_today) + '\n')
+        tweet = '\n'.join(games_today)
+        response = oauth.post(
+            "https://api.twitter.com/2/tweets",
+            json={'text': tweet},
+        )
+        if response.status_code != 201:
+            raise Exception("Request returned an error: {} {}".format(response.status_code, response.text))
+        else:
+            print("Response code: ", response.status_code)
+            print("Tweet hecho con exito")
+        print('Esperando reinicio... \n')
+    else:
+        print('Aun no es la hora indicada... \n')
+    sleep(4000)

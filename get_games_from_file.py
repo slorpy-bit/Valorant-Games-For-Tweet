@@ -25,8 +25,7 @@ def get_dates(games):
 
 def get_file():
     with open('games.pkl', 'rb') as f:
-        games = pickle.load(f)
-    return games.copy()
+        return pickle.load(f)
 
 
 def main():
@@ -36,4 +35,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    print(main())
