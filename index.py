@@ -3,9 +3,9 @@ from time import sleep
 from datetime import datetime
 import get_games_from_file
 import get_online_games
+import keys
 
-consumer_key = "tn48s2ybVVXcf3k8ISUzzVB4y"
-consumer_secret = "fRvSZatoVdqXKyGskdhdez0FhtDZCgMzjUw07iiABssqlFfk1r"
+consumer_key, consumer_secret = keys.main()
 
 # Get request token
 request_token_url = "https://api.twitter.com/oauth/request_token?oauth_callback=oob&x_auth_access_type=write"
@@ -74,4 +74,4 @@ while True:
         print('Esperando reinicio... \n')
     else:
         print('Aun no es la hora indicada... \n')
-    sleep(4000)
+    sleep(35 * 60)
