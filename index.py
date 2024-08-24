@@ -1,6 +1,7 @@
 from requests_oauthlib import OAuth1Session
 from time import sleep
 from datetime import datetime
+import requests
 import get_games_from_file
 import get_online_games
 import keys
@@ -11,12 +12,17 @@ consumer_key, consumer_secret = keys.main()
 request_token_url = "https://api.twitter.com/oauth/request_token?oauth_callback=oob&x_auth_access_type=write"
 oauth = OAuth1Session(consumer_key, client_secret=consumer_secret)
 
-try:
-    fetch_response = oauth.fetch_request_token(request_token_url)
-except ValueError:
-    print(
-        "There may have been an issue with the consumer_key or consumer_secret you entered."
-    )
+while True:
+    try:
+        fetch_response = oauth.fetch_request_token(request_token_url)
+        break
+    except ValueError:
+        print(
+            "There may have been an issue with the consumer_key or consumer_secret you entered."
+        )
+    except requests.exceptions.ConnectionError:
+        print('Error de conexion\nEsperando internet\n')
+    sleep(100)
 
 resource_owner_key = fetch_response.get("oauth_token")
 resource_owner_secret = fetch_response.get("oauth_token_secret")
@@ -51,6 +57,7 @@ oauth = OAuth1Session(
 )
 
 # Making the request
+tournaments = ['VCT', 'VCL']
 while True:
     games_today = ["Partidos de hoy"]
     now = datetime.now()
@@ -58,7 +65,9 @@ while True:
         get_online_games.main()
         games = get_games_from_file.main()
         for game in games:
-            if game['date'] <= now.replace(day=now.day):
+            if ((game['date'] <= now.replace(day=now.day) and
+                    any(tournament in game['server'].split(' ') for tournament in tournaments)) and
+                    len(games_today) != 6):
                 games_today.append(f"{game['server']} | {game['left']} vs {game['right']}")
         print('\n' + "\n".join(games_today) + '\n')
         tweet = '\n'.join(games_today)
