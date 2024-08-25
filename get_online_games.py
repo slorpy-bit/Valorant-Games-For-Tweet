@@ -2,7 +2,6 @@ import requests
 import pickle
 from re import findall
 from bs4 import BeautifulSoup
-from time import sleep
 
 
 def get_online_games():
@@ -17,7 +16,7 @@ def get_online_games():
     for game in games_found:
         teams = findall(r'data-highlightingclass="([^"]+)"', str(game))
         times = findall(r'">([^"]+) <a', str(game))
-        server = game.find_all(class_='tournament-text')[0]
+        server = game.find_all(class_='tournament-text-flex')[0]
         if len(teams) > 1:
             list_teams = {'left': teams[0],
                           'right': teams[1],
@@ -40,4 +39,5 @@ def main():
 
 
 if __name__ == '__main__':
-    print(main())
+    for game in main():
+        print(game)

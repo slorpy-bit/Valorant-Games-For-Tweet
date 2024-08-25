@@ -7,8 +7,13 @@ def dump(key, secret):
 
 
 def load():
-    with open('keys.pkl', 'rb') as f:
-        return pkl.load(f)
+    try:
+        with open('keys.pkl', 'rb') as f:
+            return pkl.load(f)
+    except FileNotFoundError:
+        print('¡La clave no existe!')
+        print('Crear clave: ')
+        dump(input('Key: '), input('Secret: '))
 
 
 def main():
@@ -19,7 +24,7 @@ def main():
 if __name__ == '__main__':
     ans = input('[1] Cargar clave\n[2] Subir clave\nOpcion: ')
     if ans in ['1', 1]:
-        print(load())
+        load()
     elif ans in ['2', 2]:
         dump(input('Key: '), input('Secret: '))
     else:

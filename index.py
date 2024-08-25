@@ -57,18 +57,20 @@ oauth = OAuth1Session(
 )
 
 # Making the request
-tournaments = ['VCT', 'VCL']
+tournaments = ['VCT', 'VCL', 'Champions', 'VCT:', 'GC']
 while True:
-    games_today = ["Partidos de hoy"]
+    games_today = ["Partidos de hoy en @ValorantEsports"]
     now = datetime.now()
-    if now.hour == 10:
+    checked_games = []
+    if now.hour == 2:
         get_online_games.main()
         games = get_games_from_file.main()
         for game in games:
-            if ((game['date'] <= now.replace(day=now.day) and
+            if (((game['date'].day <= now.day and
                     any(tournament in game['server'].split(' ') for tournament in tournaments)) and
-                    len(games_today) != 6):
+                    len(games_today) != 6) and game not in checked_games):
                 games_today.append(f"{game['server']} | {game['left']} vs {game['right']}")
+                checked_games.append(game)
         print('\n' + "\n".join(games_today) + '\n')
         tweet = '\n'.join(games_today)
         response = oauth.post(
@@ -81,6 +83,7 @@ while True:
             print("Response code: ", response.status_code)
             print("Tweet hecho con exito")
         print('Esperando reinicio... \n')
+        sleep(60 * 60 * 24)
     else:
         print('Aun no es la hora indicada... \n')
     sleep(35 * 60)
