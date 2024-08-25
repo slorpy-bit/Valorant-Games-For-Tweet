@@ -62,7 +62,7 @@ while True:
     games_today = ["Partidos de hoy en @ValorantEsports"]
     now = datetime.now()
     checked_games = []
-    if now.hour == 2:
+    if now.hour == 12:
         get_online_games.main()
         games = get_games_from_file.main()
         for game in games:
