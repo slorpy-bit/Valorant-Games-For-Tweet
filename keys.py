@@ -4,6 +4,7 @@ import pickle as pkl
 def dump(key, secret):
     with open('keys.pkl', 'wb') as f:
         pkl.dump({'key': key, 'secret': secret}, f)
+    return {'key': key, 'secret': secret}
 
 
 def load():
@@ -13,7 +14,7 @@ def load():
     except FileNotFoundError:
         print('¡La clave no existe!')
         print('Crear clave: ')
-        dump(input('Key: '), input('Secret: '))
+        return dump(input('Key: '), input('Secret: '))
 
 
 def main():
@@ -24,7 +25,7 @@ def main():
 if __name__ == '__main__':
     ans = input('[1] Cargar clave\n[2] Subir clave\nOpcion: ')
     if ans in ['1', 1]:
-        load()
+        print(load())
     elif ans in ['2', 2]:
         dump(input('Key: '), input('Secret: '))
     else:

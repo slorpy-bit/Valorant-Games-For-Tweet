@@ -6,6 +6,7 @@ import get_games_from_file
 import get_online_games
 import keys
 
+
 consumer_key, consumer_secret = keys.main()
 
 # Get request token
@@ -58,11 +59,13 @@ oauth = OAuth1Session(
 
 # Making the request
 tournaments = ['VCT', 'VCL', 'Champions', 'VCT:', 'GC']
+target_hour = 12
 while True:
     games_today = ["Partidos de hoy en @ValorantEsports"]
     now = datetime.now()
     checked_games = []
-    if now.hour == 12:
+    if now.hour == target_hour:
+        print()
         get_online_games.main()
         games = get_games_from_file.main()
         for game in games:
@@ -85,5 +88,6 @@ while True:
         print('Esperando reinicio... \n')
         sleep(60 * 60 * 24)
     else:
-        print('Aun no es la hora indicada... \n')
-    sleep(35 * 60)
+        print(f'Aun no es la hora indicada... Esperando a las {target_hour} y son las {now.hour}', end='\r')
+        target_hour = 17
+        sleep(35 * 60)
