@@ -1,6 +1,10 @@
 from requests_oauthlib import OAuth1Session
 from time import sleep
 from datetime import datetime
+from os import system
+from platform import platform
+from random import choice
+from get_files import get_file
 import requests
 import get_games_from_file
 import get_online_games
@@ -57,9 +61,12 @@ oauth = OAuth1Session(
     resource_owner_secret=access_token_secret,
 )
 
+# Clean screen
+system('cls' if 'windows' in platform().lower() else 'clear')
+
 # Making the request
-tournaments = ['VCT', 'VCL', 'Champions', 'VCT:', 'GC']
 target = {'hour': 11, 'minute': 0, 'second': 0, 'microsecond': 0}
+emotes = "⌚🥵🤩🪐🍫🎬🤟🤯👏🔥🚀💣🎇🔫☣️☕🌭☀️"
 first_pass = False
 while True:
     # Check time
@@ -74,8 +81,12 @@ while True:
               f'{(now_target - datetime.now().replace(microsecond=0)).total_seconds()}')
         first_pass = True
     sleep((now_target - datetime.now().replace(microsecond=0)).total_seconds())
+    # Get from files
+    frases = get_file('frases.txt')
+    arrobas = get_file('arrobas.txt')
+    tournaments = get_file('tournaments.txt')
     # Start function
-    games_today = ["Partidos de hoy en @ValorantEsports"]
+    games_today = [f"{choice(frases)} {choice(['en', 'para'])} @{choice(arrobas)} {choice(emotes)}\n"]
     checked_games = []
     get_online_games.main()
     games = get_games_from_file.main()
@@ -85,15 +96,18 @@ while True:
                 len(games_today) != 6) and game not in checked_games):
             games_today.append(f"{game['server']} | {game['left']} vs {game['right']}")
             checked_games.append(game)
-    print('\n' + "\n".join(games_today) + '\n')
-    tweet = '\n'.join(games_today)
-    response = oauth.post(
-        "https://api.twitter.com/2/tweets",
-        json={'text': tweet},
-    )
-    if response.status_code != 201:
-        raise Exception("Request returned an error: {} {}".format(response.status_code, response.text))
+    if len(games_today) > 1:
+        tweet = '\n'.join(games_today)
+        print('\n' + tweet + '\n')
+        response = oauth.post(
+            "https://api.twitter.com/2/tweets",
+            json={'text': tweet},
+        )
+        if response.status_code != 201:
+            raise Exception("Request returned an error: {} {}".format(response.status_code, response.text))
+        else:
+            print("Response code: ", response.status_code)
+            print("Tweet hecho con exito")
     else:
-        print("Response code: ", response.status_code)
-        print("Tweet hecho con exito")
+        print('No hay juegos hoy :(')
     print(f'Esperando reinicio... {(now_target - datetime.now().replace(microsecond=0)).total_seconds()} segundos!\n')

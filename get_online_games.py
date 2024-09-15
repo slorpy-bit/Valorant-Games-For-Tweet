@@ -39,5 +39,5 @@ def main():
 
 
 if __name__ == '__main__':
-    for game in main():
-        print(game)
+    games = main()
+    print(*games, sep='\n')
