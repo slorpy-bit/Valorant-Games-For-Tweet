@@ -59,35 +59,41 @@ oauth = OAuth1Session(
 
 # Making the request
 tournaments = ['VCT', 'VCL', 'Champions', 'VCT:', 'GC']
-target_hour = 12
+target = {'hour': 11, 'minute': 0, 'second': 0, 'microsecond': 0}
+first_pass = False
 while True:
-    games_today = ["Partidos de hoy en @ValorantEsports"]
+    # Check time
     now = datetime.now()
+    now_target = now.replace(day=now.day + 1,
+                             hour=target['hour'],
+                             minute=target['minute'],
+                             second=target['second'],
+                             microsecond=target['microsecond'])
+    if not first_pass:
+        print('No es la hora indicada... Esperando tiempo: '
+              f'{(now_target - datetime.now().replace(microsecond=0)).total_seconds()}')
+        first_pass = True
+    sleep((now_target - datetime.now().replace(microsecond=0)).total_seconds())
+    # Start function
+    games_today = ["Partidos de hoy en @ValorantEsports"]
     checked_games = []
-    if now.hour == target_hour:
-        print()
-        get_online_games.main()
-        games = get_games_from_file.main()
-        for game in games:
-            if (((game['date'].day <= now.day and
-                    any(tournament in game['server'].split(' ') for tournament in tournaments)) and
-                    len(games_today) != 6) and game not in checked_games):
-                games_today.append(f"{game['server']} | {game['left']} vs {game['right']}")
-                checked_games.append(game)
-        print('\n' + "\n".join(games_today) + '\n')
-        tweet = '\n'.join(games_today)
-        response = oauth.post(
-            "https://api.twitter.com/2/tweets",
-            json={'text': tweet},
-        )
-        if response.status_code != 201:
-            raise Exception("Request returned an error: {} {}".format(response.status_code, response.text))
-        else:
-            print("Response code: ", response.status_code)
-            print("Tweet hecho con exito")
-        print('Esperando reinicio... \n')
-        sleep(60 * 60 * 24)
+    get_online_games.main()
+    games = get_games_from_file.main()
+    for game in games:
+        if (((game['date'].day <= now.day and
+                any(tournament in game['server'].split(' ') for tournament in tournaments)) and
+                len(games_today) != 6) and game not in checked_games):
+            games_today.append(f"{game['server']} | {game['left']} vs {game['right']}")
+            checked_games.append(game)
+    print('\n' + "\n".join(games_today) + '\n')
+    tweet = '\n'.join(games_today)
+    response = oauth.post(
+        "https://api.twitter.com/2/tweets",
+        json={'text': tweet},
+    )
+    if response.status_code != 201:
+        raise Exception("Request returned an error: {} {}".format(response.status_code, response.text))
     else:
-        print(f'Aun no es la hora indicada... Esperando a las {target_hour} y son las {now.hour}', end='\r')
-        target_hour = 17
-        sleep(35 * 60)
+        print("Response code: ", response.status_code)
+        print("Tweet hecho con exito")
+    print(f'Esperando reinicio... {(now_target - datetime.now().replace(microsecond=0)).total_seconds()} segundos!\n')
