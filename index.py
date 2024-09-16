@@ -70,17 +70,14 @@ emotes = "⌚🥵🤩🪐🍫🎬🤟🤯👏🔥🚀💣🎇🔫☣️☕🌭�
 first_pass = False
 while True:
     # Check time
-    now = datetime.now()
+    now = datetime.now().replace(microsecond=0)
     now_target = now.replace(day=now.day + 1,
                              hour=target['hour'],
                              minute=target['minute'],
                              second=target['second'],
                              microsecond=target['microsecond'])
-    if not first_pass:
-        print('No es la hora indicada... Esperando tiempo: '
-              f'{(now_target - datetime.now().replace(microsecond=0)).total_seconds()}')
-        first_pass = True
-    sleep((now_target - datetime.now().replace(microsecond=0)).total_seconds())
+    print(f'Esperando reinicio... {(now_target - now).total_seconds()} segundos!\n')
+    sleep((now_target - now).total_seconds())
     # Get from files
     frases = get_file('frases.txt')
     arrobas = get_file('arrobas.txt')
@@ -110,4 +107,3 @@ while True:
             print("Tweet hecho con exito")
     else:
         print('No hay juegos hoy :(')
-    print(f'Esperando reinicio... {(now_target - datetime.now().replace(microsecond=0)).total_seconds()} segundos!\n')
