@@ -35,7 +35,7 @@ def main():
     emotes = "⌚🥵🤩🪐🍫🎬🤟🤯👏🔥🚀💣🎇🔫☣️☕🌭☀️"
     while True:
         # Check time
-        now = datetime.now().replace(day=datetime.now().day+1)
+        now = datetime.now()
         # Get from files
         frases = get_file('frases.txt')
         arrobas = get_file('arrobas.txt')
@@ -46,9 +46,9 @@ def main():
         get_online_games.main()
         games = get_games_from_file.main()
         for game in games:
-            if (((game['date'].day <= now.day and
-                    any(tournament in game['server'].split(' ') for tournament in tournaments)) and
-                    len(games_today) != 6) and game not in checked_games):
+            if (((game['date'].day == now.day and
+                    any(tournament in game['server'] for tournament in tournaments)) and
+                    len(games_today) != 6)):
                 games_today.append(f"{game['server']} | {game['left']} vs {game['right']}")
                 checked_games.append(game)
         upload_items(checked_games, 'history.txt')

@@ -20,15 +20,6 @@ def main():
     target = {'hour': 11, 'minute': 0, 'second': 0, 'microsecond': 0}
     emotes = "⌚🥵🤩🪐🍫🎬🤟🤯👏🔥🚀💣🎇🔫☣️☕🌭☀️"
     while True:
-        # Check time
-        now = datetime.now().replace(microsecond=0)
-        now_target = now.replace(day=now.day + 1,
-                                 hour=target['hour'],
-                                 minute=target['minute'],
-                                 second=target['second'],
-                                 microsecond=target['microsecond'])
-        print(f'Esperando reinicio... {(now_target - now).total_seconds()} segundos!\n')
-        sleep((now_target - now).total_seconds())
         # Get from files
         frases = get_file('frases.txt')
         arrobas = get_file('arrobas.txt')
@@ -39,8 +30,8 @@ def main():
         get_online_games.main()
         games = get_games_from_file.main()
         for game in games:
-            if (((game['date'].day == now.day and
-                    any(tournament in game['server'].split(' ') for tournament in tournaments)) and
+            if (((game['date'].day == datetime.now().day and
+                    any(tournament in game['server'] for tournament in tournaments)) and
                     len(games_today) != 6)):
                 games_today.append(f"{game['server']} | {game['left']} vs {game['right']}")
                 checked_games.append(game)
@@ -59,6 +50,7 @@ def main():
                 print("Tweet hecho con exito")
         else:
             print('No hay juegos hoy :(')
+        input('Enter para reiniciar... ')
 
 
 if __name__ == '__main__':
