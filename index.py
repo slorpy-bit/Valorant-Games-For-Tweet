@@ -5,6 +5,7 @@ from platform import platform
 from random import choice
 from get_files import get_file
 from get_twitter_api import get_api_main
+from upload_item_to_write import upload_items
 import get_games_from_file
 import get_online_games
 
@@ -43,6 +44,7 @@ def main():
                     len(games_today) != 6) and game not in checked_games):
                 games_today.append(f"{game['server']} | {game['left']} vs {game['right']}")
                 checked_games.append(game)
+        upload_items(checked_games, 'history.txt')
         if len(games_today) > 1:
             tweet = '\n'.join(games_today)
             print('\n' + tweet + '\n')
